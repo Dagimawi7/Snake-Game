@@ -40,3 +40,21 @@ Spawn_Fruit = True
 # making the default direction for the snake to the right direction 
 Direction = 'RIGHT'
 change_To = Direction
+
+# Starting score 
+Score = 0
+
+# showing the score function
+def Show_Score(choice, color, font, size):
+
+    # seeting up font object for score_font
+    Score_font = pygame.font.SysFont(font, size)
+
+    # setting the dispay for the surface object 
+    Score_Surface = Score_font.render('Score : ' + str(Score), True, color)
+
+    # Adding a rectangule object for the text surface object 
+    Score_Rect =  Score_Surface.get_rect()
+
+    # showing the text
+    game_window.blit(Score_Surface, Score_Rect)
