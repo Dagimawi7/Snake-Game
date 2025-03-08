@@ -27,3 +27,16 @@ game_window = pygame.display.set_mode((Size_Window_x , Size_Window_y))
 #controller for the fps 
 fps = pygame.time.Clock()
 
+# setting up the snakes default postion 
+Postion_Of_Snake = [100, 50]
+
+#setting up frist 4 blocks of the snakes body 
+Body_Of_Snake = [[100, 50], [90, 50], [80, 50], [70, 50]]
+
+# positon of the Fruit & spwan of fruit
+Position_of_Fruit = [random.randrange(1, (Size_Window_x//10)) * 10, random.randrange(1, (Size_Window_y//10)) * 10]
+Spawn_Fruit = True 
+
+# making the default direction for the snake to the right direction 
+Direction = 'RIGHT'
+change_To = Direction
