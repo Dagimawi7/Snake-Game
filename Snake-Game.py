@@ -47,19 +47,24 @@ def display_score(font_color, font_style, font_size):
     game_screen.blit(score_surface, score_rect)
 
 def handle_game_over():
-    global player_score, snake_head_position, snake_body_segments, current_direction, next_direction, fruit_position, fruit_available
-    
     font = pygame.font.SysFont('times new roman', 50)
     game_over_surface = font.render('Your Score: ' + str(player_score), True, COLOR_RED)
     game_over_rect = game_over_surface.get_rect()
     game_over_rect.midtop = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 4)
+    
+    # Display the Game Over message
     game_screen.blit(game_over_surface, game_over_rect)
     
+    # Game over background (optional)
+    pygame.draw.rect(game_screen, COLOR_BLACK, (0, 0, WINDOW_WIDTH, WINDOW_HEIGHT), width=0)
+    
+    # Display play again or quit message
+    font = pygame.font.SysFont('times new roman', 30)
     play_again_surface = font.render('Press C to Play Again or Q to Quit', True, COLOR_WHITE)
     play_again_rect = play_again_surface.get_rect()
     play_again_rect.midtop = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
     game_screen.blit(play_again_surface, play_again_rect)
-    
+
     pygame.display.flip()
 
     waiting_for_input = True
@@ -73,16 +78,20 @@ def handle_game_over():
                     pygame.quit()
                     quit()
                 if event.key == pygame.K_c:
-                    # Reset the game variables
-                    player_score = 0
-                    snake_head_position = [100, 50]
-                    snake_body_segments = [[100, 50], [90, 50], [80, 50], [70, 50]]
-                    current_direction = 'RIGHT'
-                    next_direction = current_direction
-                    fruit_position = [random.randrange(1, (WINDOW_WIDTH // 10)) * 10, 
-                                      random.randrange(1, (WINDOW_HEIGHT // 10)) * 10]
-                    fruit_available = True
+                    # Reset the game
+                    reset_game()
                     waiting_for_input = False
+
+def reset_game():
+    global snake_head_position, snake_body_segments, fruit_position, fruit_available, player_score, current_direction
+    snake_head_position = [100, 50]
+    snake_body_segments = [[100, 50], [90, 50], [80, 50], [70, 50]]
+    fruit_position = [random.randrange(1, (WINDOW_WIDTH // 10)) * 10, 
+                      random.randrange(1, (WINDOW_HEIGHT // 10)) * 10]
+    fruit_available = True
+    player_score = 0
+    current_direction = 'RIGHT'
+
 
 # Main game loop
 while True:
