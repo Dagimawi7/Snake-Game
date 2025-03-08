@@ -3,7 +3,10 @@ import time
 import random
 
 # Game settings
-SNAKE_SPEED = 15
+INITIAL_SNAKE_SPEED = 10
+SNAKE_SPEED_INCREMENT = 2  # How much the snake speed increases
+SCORE_THRESHOLD = 50  # The score at which the speed increases
+
 WINDOW_WIDTH = 720
 WINDOW_HEIGHT = 480
 
@@ -16,6 +19,17 @@ COLOR_BLUE = pygame.Color(0, 0, 255)
 
 # Initialize pygame
 pygame.init()
+
+# Initialize the mixer for sound effects and music
+pygame.mixer.init()
+
+# Load sound effects
+eat_sound = pygame.mixer.Sound('eating.mp3')  # Replace with your file path
+game_over_sound = pygame.mixer.Sound('over.mp3')  # Replace with your file path
+
+# Load and play background music
+pygame.mixer.music.load('background.mp3')  # Replace with your file path
+pygame.mixer.music.play(-1, 0.0)  # Loop the music indefinitely
 
 # Create game window
 pygame.display.set_caption('Snake Game')
@@ -66,6 +80,7 @@ def handle_game_over():
     game_screen.blit(play_again_surface, play_again_rect)
 
     pygame.display.flip()
+    game_over_sound.play()  # Play sound when the game is over
 
     waiting_for_input = True
     while waiting_for_input:
@@ -92,8 +107,9 @@ def reset_game():
     player_score = 0
     current_direction = 'RIGHT'
 
-
 # Main game loop
+SNAKE_SPEED = INITIAL_SNAKE_SPEED  # Starting speed
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
@@ -130,6 +146,7 @@ while True:
     snake_body_segments.insert(0, list(snake_head_position))
     if snake_head_position[0] == fruit_position[0] and snake_head_position[1] == fruit_position[1]:
         player_score += 10
+        eat_sound.play()  # Play sound when fruit is eaten
         fruit_available = False
     else:
         snake_body_segments.pop()
@@ -138,6 +155,12 @@ while True:
         fruit_position = [random.randrange(1, (WINDOW_WIDTH // 10)) * 10, 
                           random.randrange(1, (WINDOW_HEIGHT // 10)) * 10]
         fruit_available = True
+
+    # Increase difficulty based on score
+    if player_score >= SCORE_THRESHOLD:
+        SNAKE_SPEED = INITIAL_SNAKE_SPEED + (player_score // SCORE_THRESHOLD) * SNAKE_SPEED_INCREMENT
+        if player_score % SCORE_THRESHOLD == 0:  # Increase speed every 50 points
+            print(f'New Speed: {SNAKE_SPEED}')
 
     # Update screen
     game_screen.fill(COLOR_BLACK)
@@ -156,15 +179,14 @@ while True:
         handle_game_over()
 
     # Check for collisions with itself
-    for segment in snake_body_segments[1:]:
-        if snake_head_position[0] == segment[0] and snake_head_position[1] == segment[1]:
-            handle_game_over()
+    if snake_head_position in snake_body_segments[1:]:
+        handle_game_over()
 
     # Display score
     display_score(COLOR_WHITE, 'times new roman', 20)
-    
-    # Refresh game screen
+
+    # Update the game window
     pygame.display.update()
-    
-    # Control game speed
+
+    # Control the speed of the snake
     clock.tick(SNAKE_SPEED)
