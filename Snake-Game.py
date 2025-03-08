@@ -47,15 +47,42 @@ def display_score(font_color, font_style, font_size):
     game_screen.blit(score_surface, score_rect)
 
 def handle_game_over():
+    global player_score, snake_head_position, snake_body_segments, current_direction, next_direction, fruit_position, fruit_available
+    
     font = pygame.font.SysFont('times new roman', 50)
     game_over_surface = font.render('Your Score: ' + str(player_score), True, COLOR_RED)
     game_over_rect = game_over_surface.get_rect()
     game_over_rect.midtop = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 4)
     game_screen.blit(game_over_surface, game_over_rect)
+    
+    play_again_surface = font.render('Press C to Play Again or Q to Quit', True, COLOR_WHITE)
+    play_again_rect = play_again_surface.get_rect()
+    play_again_rect.midtop = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
+    game_screen.blit(play_again_surface, play_again_rect)
+    
     pygame.display.flip()
-    time.sleep(2)
-    pygame.quit()
-    quit()
+
+    waiting_for_input = True
+    while waiting_for_input:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    pygame.quit()
+                    quit()
+                if event.key == pygame.K_c:
+                    # Reset the game variables
+                    player_score = 0
+                    snake_head_position = [100, 50]
+                    snake_body_segments = [[100, 50], [90, 50], [80, 50], [70, 50]]
+                    current_direction = 'RIGHT'
+                    next_direction = current_direction
+                    fruit_position = [random.randrange(1, (WINDOW_WIDTH // 10)) * 10, 
+                                      random.randrange(1, (WINDOW_HEIGHT // 10)) * 10]
+                    fruit_available = True
+                    waiting_for_input = False
 
 # Main game loop
 while True:
