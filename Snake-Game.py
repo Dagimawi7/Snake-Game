@@ -237,15 +237,12 @@ while True:
                           random.randrange(1, (WINDOW_HEIGHT // 10)) * 10]
         fruit_available = True
 
-    # Increase difficulty based on score
-    if player_score >= SECOND_SPEED_THRESHOLD:
-        # Fastest speed (more significant increase)
-        SNAKE_SPEED = INITIAL_SNAKE_SPEED + (SNAKE_SPEED_INCREMENT * (player_score // SECOND_SPEED_THRESHOLD))
+    # Smooth speed increase based on player score
+    if player_score >= SCORE_THRESHOLD:
+        SNAKE_SPEED = INITIAL_SNAKE_SPEED + (SNAKE_SPEED_INCREMENT * math.log(player_score / SCORE_THRESHOLD + 1))
         if SNAKE_SPEED > MAX_SPEED:
             SNAKE_SPEED = MAX_SPEED
-    elif player_score >= SCORE_THRESHOLD:
-        # Increase speed after every 10 points
-        SNAKE_SPEED = INITIAL_SNAKE_SPEED + (SNAKE_SPEED_INCREMENT * (player_score // SCORE_THRESHOLD))
+
 
     # Update screen
     game_screen.fill(COLOR_BLACK)
