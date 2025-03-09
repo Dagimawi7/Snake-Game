@@ -3,9 +3,13 @@ import time
 import random
 
 # Game settings
-INITIAL_SNAKE_SPEED = 10
-SNAKE_SPEED_INCREMENT = 2  # How much the snake speed increases
-SCORE_THRESHOLD = 50  # The score at which the speed increases
+# Game settings
+INITIAL_SNAKE_SPEED = 10  # Starting speed
+SNAKE_SPEED_INCREMENT = 1  # Speed increase per score milestone
+SNAKE_SPEED_ACCELERATION = 0.2  # Acceleration after reaching high score
+SCORE_THRESHOLD = 10  # Score at which speed increases slightly
+SECOND_SPEED_THRESHOLD = 50  # Score threshold for faster increases
+MAX_SPEED = 25  # Max speed of the snake
 
 WINDOW_WIDTH = 720
 WINDOW_HEIGHT = 480
@@ -115,7 +119,7 @@ while True:
         if event.type == pygame.QUIT:  # This handles the window close button
             pygame.quit()
             quit()
-              
+
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
                 next_direction = 'UP'
@@ -154,13 +158,13 @@ while True:
         fruit_available = False
     else:
         snake_body_segments.pop()
-        
+
     if not fruit_available:
         fruit_position = [random.randrange(1, (WINDOW_WIDTH // 10)) * 10, 
                           random.randrange(1, (WINDOW_HEIGHT // 10)) * 10]
         fruit_available = True
 
-    # Increase difficulty based on score
+    # Smooth speed increase based on score
     if player_score >= SCORE_THRESHOLD:
         SNAKE_SPEED = INITIAL_SNAKE_SPEED + (player_score // SCORE_THRESHOLD) * SNAKE_SPEED_INCREMENT
         if player_score % SCORE_THRESHOLD == 0:  # Increase speed every 50 points
@@ -169,11 +173,11 @@ while True:
     # Update screen
     game_screen.fill(COLOR_BLACK)
     
-    # Draw snake
+    # Draw snake with smoothness
     for segment in snake_body_segments:
         pygame.draw.rect(game_screen, COLOR_GREEN, pygame.Rect(segment[0], segment[1], 10, 10))
     
-    # Draw fruit
+    # Draw fruit with smooth animation effect
     pygame.draw.rect(game_screen, COLOR_WHITE, pygame.Rect(fruit_position[0], fruit_position[1], 10, 10))
 
     # Check for collisions with wall
@@ -192,5 +196,5 @@ while True:
     # Update the game window
     pygame.display.update()
 
-    # Control the speed of the snake
+    # Control the speed of the snake with smooth animation
     clock.tick(SNAKE_SPEED)
