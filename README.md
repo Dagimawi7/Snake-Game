@@ -1,4 +1,4 @@
-
+🐍 Snake Game - Python 🕹️
 
 This is a classic Snake Game built using Python and the Pygame library. The game includes smooth acceleration and increasing difficulty as the player progresses, keeping the game challenging and exciting. 🏁
 
