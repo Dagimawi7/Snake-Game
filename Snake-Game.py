@@ -242,6 +242,22 @@ while True:
         SNAKE_SPEED = INITIAL_SNAKE_SPEED + (SNAKE_SPEED_INCREMENT * math.log(player_score / SCORE_THRESHOLD + 1))
         if SNAKE_SPEED > MAX_SPEED:
             SNAKE_SPEED = MAX_SPEED
+    
+    # Increase difficulty based on score
+    if player_score >= SECOND_SPEED_THRESHOLD:
+        # Fastest speed (more significant increase)
+        SNAKE_SPEED = INITIAL_SNAKE_SPEED + (SNAKE_SPEED_INCREMENT * (player_score // SECOND_SPEED_THRESHOLD))
+        if SNAKE_SPEED > MAX_SPEED:
+            SNAKE_SPEED = MAX_SPEED
+    elif player_score >= SCORE_THRESHOLD:
+        # Increase speed after every 10 points
+        SNAKE_SPEED = INITIAL_SNAKE_SPEED + (SNAKE_SPEED_INCREMENT * (player_score // SCORE_THRESHOLD))
+
+    # Gradual snake acceleration over time
+    if player_score > SECOND_SPEED_THRESHOLD:
+        SNAKE_SPEED += SNAKE_SPEED_ACCELERATION
+        if SNAKE_SPEED > MAX_SPEED:
+            SNAKE_SPEED = MAX_SPEED
 
 
     # Update screen
