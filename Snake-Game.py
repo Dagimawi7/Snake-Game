@@ -2,6 +2,7 @@ import pygame
 import time
 import random
 import math
+import os
 
 # Game settings
 INITIAL_SNAKE_SPEED = 10  # Starting speed
@@ -10,6 +11,7 @@ SNAKE_SPEED_ACCELERATION = 0.2  # Acceleration after reaching high score
 SCORE_THRESHOLD = 10  # Score at which speed increases slightly
 SECOND_SPEED_THRESHOLD = 50  # Score threshold for faster increases
 MAX_SPEED = 25  # Max speed of the snake
+
 
 WINDOW_WIDTH = 720
 WINDOW_HEIGHT = 480
@@ -247,6 +249,15 @@ while True:
 
     # Update screen
     game_screen.fill(COLOR_BLACK)
+
+    # Create a moving background effect
+    background_y = 0
+    game_screen.fill(COLOR_BLACK)
+    background_y += 1
+    if background_y >= WINDOW_HEIGHT:
+        background_y = 0
+    pygame.draw.rect(game_screen, COLOR_BLUE, (0, background_y, WINDOW_WIDTH, WINDOW_HEIGHT))
+
     
     # Draw snake body
     for segment in snake_body_segments:
