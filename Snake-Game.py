@@ -112,6 +112,10 @@ SNAKE_SPEED = INITIAL_SNAKE_SPEED  # Starting speed
 
 while True:
     for event in pygame.event.get():
+        if event.type == pygame.QUIT:  # This handles the window close button
+            pygame.quit()
+            quit()
+              
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
                 next_direction = 'UP'
