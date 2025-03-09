@@ -12,7 +12,7 @@ SCORE_THRESHOLD = 10  # Score at which speed increases slightly
 SECOND_SPEED_THRESHOLD = 50  # Score threshold for faster increases
 MAX_SPEED = 25  # Max speed of the snake
 
-
+# Window settings
 WINDOW_WIDTH = 720
 WINDOW_HEIGHT = 480
 
@@ -23,6 +23,13 @@ COLOR_RED = pygame.Color(255, 0, 0)
 COLOR_GREEN = pygame.Color(0, 255, 0)
 COLOR_BLUE = pygame.Color(0, 0, 255)
 COLOR_YELLOW = pygame.Color(255, 255, 0)
+
+# Snake and fruit settings
+SNAKE_SIZE = 10  # Size of the snake and fruit
+FRUIT_SIZE = 10  # Size of the regular fruit
+BIG_FRUIT_SIZE = 20  # Size of the big fruit
+BIG_FRUIT_EATING_RADIUS = 20  # Distance from which the snake can "eat" the big fruit
+
 
 # Initialize pygame
 pygame.init()
@@ -149,11 +156,18 @@ def handle_game_over():
 
 def reset_game():
     global snake_head_position, snake_body_segments, fruit_position, fruit_available, big_fruit_position, big_fruit_available, big_fruit_eaten, player_score, small_fruit_count, current_direction
-    snake_head_position = [100, 50]
-    snake_body_segments = [[100, 50], [90, 50], [80, 50], [70, 50]]
+
+    # Set the snake's starting position at the center of the window
+    center_x = WINDOW_WIDTH // 2
+    center_y = WINDOW_HEIGHT // 2
+    
+    snake_head_position = [center_x, center_y]
+    snake_body_segments = [[center_x, center_y], [center_x - 10, center_y], [center_x - 20, center_y], [center_x - 30, center_y]]
+    
     fruit_position = [random.randrange(1, (WINDOW_WIDTH // 10)) * 10, 
                       random.randrange(1, (WINDOW_HEIGHT // 10)) * 10]
     fruit_available = True
+    
     big_fruit_position = [0, 0]
     big_fruit_available = False
     big_fruit_eaten = False
