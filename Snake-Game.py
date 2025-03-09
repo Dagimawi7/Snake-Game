@@ -256,9 +256,13 @@ while True:
     pygame.draw.rect(game_screen, COLOR_BLUE, (0, background_y, WINDOW_WIDTH, WINDOW_HEIGHT))
 
     
-    # Draw snake body
-    for segment in snake_body_segments:
-        pygame.draw.rect(game_screen, COLOR_GREEN, pygame.Rect(segment[0], segment[1], 10, 10))
+    # Draw snake body with different colors for head and tail
+    for index, segment in enumerate(snake_body_segments):
+        if index == 0:
+            pygame.draw.rect(game_screen, COLOR_GREEN, pygame.Rect(segment[0], segment[1], 10, 10))  # Head
+        else:
+            pygame.draw.rect(game_screen, pygame.Color(0, 180, 0), pygame.Rect(segment[0], segment[1], 10, 10))  # Tail
+
 
     # Draw fruit
     pygame.draw.rect(game_screen, COLOR_RED, pygame.Rect(fruit_position[0], fruit_position[1], 10, 10))
