@@ -167,6 +167,61 @@ SNAKE_SPEED = INITIAL_SNAKE_SPEED  # Starting speed
 # Read the high score from file at the beginning of the game
 read_high_score()
 
+def handle_game_over():
+    global high_score
+    font = pygame.font.SysFont('times new roman', 50)
+    game_over_surface = font.render('Your Score: ' + str(player_score), True, COLOR_RED)
+    game_over_rect = game_over_surface.get_rect()
+    game_over_rect.midtop = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 4)
+
+    # Display Game Over message
+    game_screen.blit(game_over_surface, game_over_rect)
+
+    # Fade out effect
+    for alpha in range(0, 255, 5):
+        game_screen.fill((0, 0, 0))
+        game_screen.blit(game_over_surface, game_over_rect)
+        pygame.display.update()
+        pygame.time.delay(10)
+        surface = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
+        surface.set_alpha(alpha)  # Set alpha to simulate fading
+        surface.fill((0, 0, 0))
+        game_screen.blit(surface, (0, 0))
+        pygame.display.update()
+
+    pygame.display.update()
+    game_over_sound.play()  # Play sound when the game is over
+
+    # Update high score if necessary
+    if player_score > high_score:
+        high_score = player_score
+        save_high_score()  # Save the new high score to file
+
+    # Ask the player whether to play again or quit
+    font = pygame.font.SysFont('times new roman', 30)
+    play_again_text = font.render('Press P to Play Again or Q to Quit', True, COLOR_GREEN)
+    play_again_rect = play_again_text.get_rect()
+    play_again_rect.center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
+
+    game_screen.blit(play_again_text, play_again_rect)
+    pygame.display.update()
+
+    # Wait for user input (P to play again, Q to quit)
+    waiting_for_input = True
+    while waiting_for_input:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_p:  # Play again
+                    reset_game()  # Function to reset the game state (restart)
+                    waiting_for_input = False
+                elif event.key == pygame.K_q:  # Quit game
+                    pygame.quit()
+                    quit()
+
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:  # This handles the window close button
