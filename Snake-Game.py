@@ -3,7 +3,6 @@ import time
 import random
 
 # Game settings
-# Game settings
 INITIAL_SNAKE_SPEED = 10  # Starting speed
 SNAKE_SPEED_INCREMENT = 1  # Speed increase per score milestone
 SNAKE_SPEED_ACCELERATION = 0.2  # Acceleration after reaching high score
@@ -20,6 +19,7 @@ COLOR_WHITE = pygame.Color(255, 255, 255)
 COLOR_RED = pygame.Color(255, 0, 0)
 COLOR_GREEN = pygame.Color(0, 255, 0)
 COLOR_BLUE = pygame.Color(0, 0, 255)
+COLOR_YELLOW = pygame.Color(255, 255, 0)
 
 # Initialize pygame
 pygame.init()
@@ -51,12 +51,18 @@ fruit_position = [random.randrange(1, (WINDOW_WIDTH // 10)) * 10,
                   random.randrange(1, (WINDOW_HEIGHT // 10)) * 10]
 fruit_available = True
 
+# Big fruit variables
+big_fruit_position = [0, 0]
+big_fruit_available = False
+big_fruit_eaten = False
+
+# Player score and small fruit count
+player_score = 0
+small_fruit_count = 0
+
 # Initial movement direction
 current_direction = 'RIGHT'
 next_direction = current_direction
-
-# Player score
-player_score = 0
 
 def display_score(font_color, font_style, font_size):
     font = pygame.font.SysFont(font_style, font_size)
@@ -102,13 +108,17 @@ def handle_game_over():
                     waiting_for_input = False
 
 def reset_game():
-    global snake_head_position, snake_body_segments, fruit_position, fruit_available, player_score, current_direction
+    global snake_head_position, snake_body_segments, fruit_position, fruit_available, big_fruit_position, big_fruit_available, big_fruit_eaten, player_score, small_fruit_count, current_direction
     snake_head_position = [100, 50]
     snake_body_segments = [[100, 50], [90, 50], [80, 50], [70, 50]]
     fruit_position = [random.randrange(1, (WINDOW_WIDTH // 10)) * 10, 
                       random.randrange(1, (WINDOW_HEIGHT // 10)) * 10]
     fruit_available = True
+    big_fruit_position = [0, 0]
+    big_fruit_available = False
+    big_fruit_eaten = False
     player_score = 0
+    small_fruit_count = 0
     current_direction = 'RIGHT'
 
 # Main game loop
@@ -154,31 +164,56 @@ while True:
     snake_body_segments.insert(0, list(snake_head_position))
     if snake_head_position[0] == fruit_position[0] and snake_head_position[1] == fruit_position[1]:
         player_score += 10
+        small_fruit_count += 1
         eat_sound.play()  # Play sound when fruit is eaten
         fruit_available = False
     else:
         snake_body_segments.pop()
+
+    # Spawn a big fruit after eating 5 small fruits
+    if small_fruit_count >= 5 and not big_fruit_available:
+        big_fruit_position = [random.randrange(1, (WINDOW_WIDTH // 10)) * 10, 
+                              random.randrange(1, (WINDOW_HEIGHT // 10)) * 10]
+        big_fruit_available = True
+        small_fruit_count = 0  # Reset small fruit count after spawning big fruit
+
+    # Check if snake eats the big fruit
+    if big_fruit_available and snake_head_position[0] == big_fruit_position[0] and snake_head_position[1] == big_fruit_position[1]:
+        player_score += 50  # Big fruit gives more points
+        big_fruit_eaten = True
+        eat_sound.play()  # Play sound when big fruit is eaten
+        big_fruit_available = False
+        small_fruit_count = 0  # Reset small fruit count after eating a big fruit
+        snake_body_segments.append(snake_body_segments[-1])  # Grow snake after eating big fruit
 
     if not fruit_available:
         fruit_position = [random.randrange(1, (WINDOW_WIDTH // 10)) * 10, 
                           random.randrange(1, (WINDOW_HEIGHT // 10)) * 10]
         fruit_available = True
 
-    # Smooth speed increase based on score
-    if player_score >= SCORE_THRESHOLD:
-        SNAKE_SPEED = INITIAL_SNAKE_SPEED + (player_score // SCORE_THRESHOLD) * SNAKE_SPEED_INCREMENT
-        if player_score % SCORE_THRESHOLD == 0:  # Increase speed every 50 points
-            print(f'New Speed: {SNAKE_SPEED}')
+    # Increase difficulty based on score
+    if player_score >= SECOND_SPEED_THRESHOLD:
+        # Fastest speed (more significant increase)
+        SNAKE_SPEED = INITIAL_SNAKE_SPEED + (SNAKE_SPEED_INCREMENT * (player_score // SECOND_SPEED_THRESHOLD))
+        if SNAKE_SPEED > MAX_SPEED:
+            SNAKE_SPEED = MAX_SPEED
+    elif player_score >= SCORE_THRESHOLD:
+        # Increase speed after every 10 points
+        SNAKE_SPEED = INITIAL_SNAKE_SPEED + (SNAKE_SPEED_INCREMENT * (player_score // SCORE_THRESHOLD))
 
     # Update screen
     game_screen.fill(COLOR_BLACK)
     
-    # Draw snake with smoothness
+    # Draw snake
     for segment in snake_body_segments:
         pygame.draw.rect(game_screen, COLOR_GREEN, pygame.Rect(segment[0], segment[1], 10, 10))
     
-    # Draw fruit with smooth animation effect
+    # Draw fruit
     pygame.draw.rect(game_screen, COLOR_WHITE, pygame.Rect(fruit_position[0], fruit_position[1], 10, 10))
+    
+    # Draw big fruit if available
+    if big_fruit_available:
+        pygame.draw.rect(game_screen, COLOR_YELLOW, pygame.Rect(big_fruit_position[0], big_fruit_position[1], 20, 20))  # Big fruit is larger
 
     # Check for collisions with wall
     if snake_head_position[0] < 0 or snake_head_position[0] >= WINDOW_WIDTH:
@@ -196,5 +231,5 @@ while True:
     # Update the game window
     pygame.display.update()
 
-    # Control the speed of the snake with smooth animation
+    # Control the speed of the snake
     clock.tick(SNAKE_SPEED)
