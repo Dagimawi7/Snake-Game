@@ -1,7 +1,7 @@
 import pygame
 import time
 import random
-import math  # To calculate the distance between two points
+import math
 
 # Game settings
 INITIAL_SNAKE_SPEED = 10  # Starting speed
@@ -66,13 +66,44 @@ small_fruit_count = 0
 current_direction = 'RIGHT'
 next_direction = current_direction
 
-def display_score(font_color, font_style, font_size):
-    font = pygame.font.SysFont(font_style, font_size)
-    score_surface = font.render('Score: ' + str(player_score), True, font_color)
-    score_rect = score_surface.get_rect()
-    game_screen.blit(score_surface, score_rect)
+# High Score
+HIGH_SCORE_FILE = "highscore.txt"
+high_score = 0
 
+# Function to read high score from file
+def read_high_score():
+    global high_score
+    try:
+        with open(HIGH_SCORE_FILE, "r") as file:
+            high_score = int(file.read())
+    except FileNotFoundError:
+        high_score = 0  # If no file exists, set high score to 0
+
+# Function to save high score to file
+def save_high_score():
+    with open(HIGH_SCORE_FILE, "w") as file:
+        file.write(str(high_score))
+
+# Function to display score
+def display_score(color, font, size):
+    font = pygame.font.SysFont(font, size)
+
+    # Render current score
+    score_text = font.render(f'Score: {player_score}', True, color)
+    score_rect = score_text.get_rect(topleft=(10, 10))  # Score at the top-left
+
+    # Render high score (align to top-right)
+    high_score_text = font.render(f'High Score: {high_score}', True, color)
+    high_score_rect = high_score_text.get_rect(topright=(WINDOW_WIDTH - 10, 10))  # Top-right corner
+
+    # Blit text onto screen
+    game_screen.blit(score_text, score_rect)
+    game_screen.blit(high_score_text, high_score_rect)
+
+
+# Function to handle game over
 def handle_game_over():
+    global high_score
     font = pygame.font.SysFont('times new roman', 50)
     game_over_surface = font.render('Your Score: ' + str(player_score), True, COLOR_RED)
     game_over_rect = game_over_surface.get_rect()
@@ -93,6 +124,11 @@ def handle_game_over():
 
     pygame.display.flip()
     game_over_sound.play()  # Play sound when the game is over
+
+    # Update high score if necessary
+    if player_score > high_score:
+        high_score = player_score
+        save_high_score()  # Save the new high score to file
 
     waiting_for_input = True
     while waiting_for_input:
@@ -125,6 +161,9 @@ def reset_game():
 
 # Main game loop
 SNAKE_SPEED = INITIAL_SNAKE_SPEED  # Starting speed
+
+# Read the high score from file at the beginning of the game
+read_high_score()
 
 while True:
     for event in pygame.event.get():
@@ -209,32 +248,30 @@ while True:
     # Update screen
     game_screen.fill(COLOR_BLACK)
     
-    # Draw snake
+    # Draw snake body
     for segment in snake_body_segments:
         pygame.draw.rect(game_screen, COLOR_GREEN, pygame.Rect(segment[0], segment[1], 10, 10))
-    
+
     # Draw fruit
-    pygame.draw.rect(game_screen, COLOR_WHITE, pygame.Rect(fruit_position[0], fruit_position[1], 10, 10))
-    
-    # Draw big fruit if available
+    pygame.draw.rect(game_screen, COLOR_RED, pygame.Rect(fruit_position[0], fruit_position[1], 10, 10))
+
+    # Draw big fruit
     if big_fruit_available:
-        pygame.draw.rect(game_screen, COLOR_YELLOW, pygame.Rect(big_fruit_position[0], big_fruit_position[1], 20, 20))  # Big fruit is larger
-
-    # Check for collisions with wall
-    if snake_head_position[0] < 0 or snake_head_position[0] >= WINDOW_WIDTH:
-        handle_game_over()
-    if snake_head_position[1] < 0 or snake_head_position[1] >= WINDOW_HEIGHT:
-        handle_game_over()
-
-    # Check for collisions with itself
-    if snake_head_position in snake_body_segments[1:]:
-        handle_game_over()
+        pygame.draw.rect(game_screen, COLOR_YELLOW, pygame.Rect(big_fruit_position[0], big_fruit_position[1], 20, 20))
 
     # Display score
-    display_score(COLOR_WHITE, 'times new roman', 20)
+    display_score(COLOR_WHITE, 'times new roman', 25)
 
-    # Update the game window
     pygame.display.update()
 
-    # Control the speed of the snake
+    # Check for collision with wall or self
+    if snake_head_position[0] < 0 or snake_head_position[0] >= WINDOW_WIDTH or \
+       snake_head_position[1] < 0 or snake_head_position[1] >= WINDOW_HEIGHT:
+        handle_game_over()
+
+    for segment in snake_body_segments[1:]:
+        if segment == snake_head_position:
+            handle_game_over()
+
+    # Control the speed of the game
     clock.tick(SNAKE_SPEED)
