@@ -1,6 +1,7 @@
 import pygame
 import time
 import random
+import math  # To calculate the distance between two points
 
 # Game settings
 INITIAL_SNAKE_SPEED = 10  # Starting speed
@@ -55,6 +56,7 @@ fruit_available = True
 big_fruit_position = [0, 0]
 big_fruit_available = False
 big_fruit_eaten = False
+BIG_FRUIT_EATING_RADIUS = 20  # Distance from which the snake can "eat" the big fruit
 
 # Player score and small fruit count
 player_score = 0
@@ -177,14 +179,17 @@ while True:
         big_fruit_available = True
         small_fruit_count = 0  # Reset small fruit count after spawning big fruit
 
-    # Check if snake eats the big fruit
-    if big_fruit_available and snake_head_position[0] == big_fruit_position[0] and snake_head_position[1] == big_fruit_position[1]:
-        player_score += 50  # Big fruit gives more points
-        big_fruit_eaten = True
-        eat_sound.play()  # Play sound when big fruit is eaten
-        big_fruit_available = False
-        small_fruit_count = 0  # Reset small fruit count after eating a big fruit
-        snake_body_segments.append(snake_body_segments[-1])  # Grow snake after eating big fruit
+    # Proximity check for big fruit (eat when close enough)
+    if big_fruit_available:
+        distance = math.sqrt((snake_head_position[0] - big_fruit_position[0]) ** 2 + 
+                             (snake_head_position[1] - big_fruit_position[1]) ** 2)
+        if distance < BIG_FRUIT_EATING_RADIUS:  # If within proximity
+            player_score += 50  # Big fruit gives more points
+            big_fruit_eaten = True
+            eat_sound.play()  # Play sound when big fruit is eaten
+            big_fruit_available = False
+            small_fruit_count = 0  # Reset small fruit count after eating a big fruit
+            snake_body_segments.append(snake_body_segments[-1])  # Grow snake after eating big fruit
 
     if not fruit_available:
         fruit_position = [random.randrange(1, (WINDOW_WIDTH // 10)) * 10, 
